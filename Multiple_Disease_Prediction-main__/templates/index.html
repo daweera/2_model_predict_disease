@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiple Disease Prediction</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <h2>Multiple Disease Prediction</h2>
+        <button onclick="showForm('diabetes-form')">Diabetes Prediction</button>
+        <button onclick="showForm('heart-form')">
+          Heart Disease Prediction
+        </button>
+      </div>
+      <div class="main">
+        <div id="diabetes-form" class="form">
+          <h3>Diabetes Prediction Using Machine Learning</h3>
+          <input
+            type="number"
+            id="pregnancies"
+            placeholder="Number of Pregnancies"
+          />
+          <small
+            >Enter the number of times you have been pregnant (e.g., 0, 1,
+            2)</small
+          >
+          <input type="number" id="glucose" placeholder="Glucose Level" />
+          <small>Enter your glucose level (e.g., 70-200)</small>
+          <input
+            type="number"
+            id="bloodpressure"
+            placeholder="Blood Pressure Value"
+          />
+          <small>Enter your blood pressure (e.g., 80-120)</small>
+          <input
+            type="number"
+            id="skinthickness"
+            placeholder="Skin Thickness Value"
+          />
+          <small>Enter your skin thickness (e.g., 10-50)</small>
+          <input type="number" id="insulin" placeholder="Insulin Value" />
+          <small>Enter your insulin level (e.g., 15-276)</small>
+          <input type="number" id="bmi" placeholder="BMI Value" />
+          <small>Enter your BMI (e.g., 18.5-30)</small>
+          <input
+            type="number"
+            id="dpf"
+            placeholder="Diabetes Pedigree Function Value"
+          />
+          <small
+            >Enter your diabetes pedigree function value (e.g., 0.1-2.5)</small
+          >
+          <input type="number" id="age" placeholder="Age" />
+          <small>Enter your age (e.g., 20-70)</small>
+          <button onclick="predictDiabetes()">Diabetes Test Result</button>
+          <div id="diabetes-result"></div>
+        </div>
+
+        <div id="heart-form" class="form" style="display: none">
+          <h3>Heart Disease Prediction Using Machine Learning</h3>
+          <input type="number" id="age-heart" placeholder="Age" />
+          <small>Enter your age (e.g., 20-70)</small>
+          <input type="number" id="sex" placeholder="Sex" />
+          <small>Enter your sex (1 = male; 0 = female)</small>
+          <input type="number" id="cp" placeholder="Chest Pain Type" />
+          <small>Enter your chest pain type (e.g., 1, 2, 3, 4)</small>
+          <input
+            type="number"
+            id="trestbps"
+            placeholder="Resting Blood Pressure"
+          />
+          <small>Enter your resting blood pressure (e.g., 80-200)</small>
+          <input type="number" id="chol" placeholder="Cholesterol" />
+          <small>Enter your cholesterol level (e.g., 100-300)</small>
+          <input type="number" id="fbs" placeholder="Fasting Blood Sugar" />
+          <small>Enter your fasting blood sugar (1 = true; 0 = false)</small>
+          <input type="number" id="restecg" placeholder="Resting ECG" />
+          <small
+            >Enter your resting electrocardiographic results (e.g., 0, 1,
+            2)</small
+          >
+          <input
+            type="number"
+            id="thalach"
+            placeholder="Max Heart Rate Achieved"
+          />
+          <small>Enter your maximum heart rate achieved (e.g., 60-200)</small>
+          <input
+            type="number"
+            id="exang"
+            placeholder="Exercise Induced Angina"
+          />
+          <small
+            >Enter if you have exercise induced angina (1 = yes; 0 = no)</small
+          >
+          <input type="number" id="oldpeak" placeholder="ST Depression" />
+          <small
+            >Enter your ST depression induced by exercise relative to rest
+            (e.g., 0-5)</small
+          >
+          <input type="number" id="slope" placeholder="Slope of the Peak" />
+          <small
+            >Enter the slope of the peak exercise ST segment (e.g., 1, 2,
+            3)</small
+          >
+          <input type="number" id="ca" placeholder="Number of Major Vessels" />
+          <small
+            >Enter number of major vessels (0-3) colored by fluoroscopy (e.g.,
+            0, 1, 2, 3)</small
+          >
+          <input type="number" id="thal" placeholder="Thal" />
+          <small
+            >Enter thalassemia (3 = normal; 6 = fixed defect; 7 = reversible
+            defect)</small
+          >
+          <button onclick="predictHeart()">Heart Test Result</button>
+          <div id="heart-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showForm(formId) {
+        document.getElementById("diabetes-form").style.display = "none";
+        document.getElementById("heart-form").style.display = "none";
+        document.getElementById(formId).style.display = "block";
+      }
+
+      function predictDiabetes() {
+        const data = {
+          pregnancies: parseFloat(document.getElementById("pregnancies").value),
+          glucose: parseFloat(document.getElementById("glucose").value),
+          bloodpressure: parseFloat(
+            document.getElementById("bloodpressure").value
+          ),
+          skinthickness: parseFloat(
+            document.getElementById("skinthickness").value
+          ),
+          insulin: parseFloat(document.getElementById("insulin").value),
+          bmi: parseFloat(document.getElementById("bmi").value),
+          dpf: parseFloat(document.getElementById("dpf").value),
+          age: parseFloat(document.getElementById("age").value),
+        };
+
+        fetch("/predict/diabetes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error) {
+              document.getElementById("diabetes-result").innerText =
+                "Error: " + data.error;
+            } else {
+              document.getElementById("diabetes-result").innerText =
+                "Prediction: " + data.prediction;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById("diabetes-result").innerText =
+              "An error occurred";
+          });
+      }
+
+      function predictHeart() {
+        const data = {
+          age: parseFloat(document.getElementById("age-heart").value),
+          sex: parseFloat(document.getElementById("sex").value),
+          cp: parseFloat(document.getElementById("cp").value),
+          trestbps: parseFloat(document.getElementById("trestbps").value),
+          chol: parseFloat(document.getElementById("chol").value),
+          fbs: parseFloat(document.getElementById("fbs").value),
+          restecg: parseFloat(document.getElementById("restecg").value),
+          thalach: parseFloat(document.getElementById("thalach").value),
+          exang: parseFloat(document.getElementById("exang").value),
+          oldpeak: parseFloat(document.getElementById("oldpeak").value),
+          slope: parseFloat(document.getElementById("slope").value),
+          ca: parseFloat(document.getElementById("ca").value),
+          thal: parseFloat(document.getElementById("thal").value),
+        };
+
+        fetch("/predict/heart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error) {
+              document.getElementById("heart-result").innerText =
+                "Error: " + data.error;
+            } else {
+              document.getElementById("heart-result").innerText =
+                "Prediction: " + data.prediction;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById("heart-result").innerText =
+              "An error occurred";
+          });
+      }
+    </script>
+  </body>
+</html>
